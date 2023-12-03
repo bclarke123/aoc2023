@@ -1,17 +1,16 @@
-fn get_sum(input: &str) {
-    let sum = input
+fn get_sum(input: &str) -> u32 {
+    input
         .lines()
         .map(|l| l.chars().filter_map(|c| c.to_digit(10)).collect::<Vec<_>>())
         .fold(0, |acc, cl| {
             acc + cl.first().unwrap() * 10 + cl.last().unwrap()
-        });
-
-    println!("{:?}", sum);
+        })
 }
 
 pub fn part1() {
     let input = include_str!("input.txt");
-    get_sum(input);
+    let output = get_sum(input);
+    println!("Day 1 part 1: {}", output);
 }
 
 pub fn get_sum2(input: &str) -> u32 {
@@ -62,5 +61,5 @@ pub fn part2() {
         total += get_sum2(&line);
     }
 
-    println!("{}", total);
+    println!("Day 1 part 2: {}", total);
 }
