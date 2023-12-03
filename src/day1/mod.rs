@@ -32,6 +32,8 @@ pub fn get_sum2(input: &str) -> u32 {
         let next = chars[idx];
         if next.is_digit(10) {
             numbers.push(next.to_digit(10).unwrap());
+            idx += 1;
+            continue;
         }
 
         let sub = &input[idx..];
@@ -39,6 +41,7 @@ pub fn get_sum2(input: &str) -> u32 {
         for i in 0..words.len() {
             if sub.starts_with(&words[i]) {
                 numbers.push(i as u32);
+                break;
             }
         }
 
