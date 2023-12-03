@@ -58,7 +58,7 @@ fn do_part(input: &str, cb: fn(Game) -> i32) -> i32 {
 }
 
 fn do_part1(input: &str) -> i32 {
-    do_part(input, |game: Game| {
+    do_part(input, |game| {
         if game.red > 12 || game.green > 13 || game.blue > 14 {
             return 0;
         }
@@ -67,7 +67,7 @@ fn do_part1(input: &str) -> i32 {
 }
 
 fn do_part2(input: &str) -> i32 {
-    do_part(input, |game: Game| game.red * game.green * game.blue)
+    do_part(input, |game| game.red * game.green * game.blue)
 }
 
 pub fn part1() {
