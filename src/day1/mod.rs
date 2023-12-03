@@ -19,8 +19,6 @@ pub fn get_sum2(input: &str) -> u32 {
         "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
 
-    let mut first = 0;
-    let mut last = 0;
     let mut idx = 0;
 
     let chars = input.chars().collect::<Vec<_>>();
@@ -47,8 +45,8 @@ pub fn get_sum2(input: &str) -> u32 {
         idx += 1;
     }
 
-    first = numbers[0];
-    last = numbers[numbers.len() - 1];
+    let first = numbers[0];
+    let last = numbers[numbers.len() - 1];
 
     return first * 10 + last;
 }
