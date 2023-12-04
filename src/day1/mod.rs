@@ -40,6 +40,7 @@ pub fn get_sum2(input: &str) -> u32 {
         for i in 0..words.len() {
             if sub.starts_with(&words[i]) {
                 numbers.push(i as u32);
+                idx += words[i].len() - 2;
                 break;
             }
         }
