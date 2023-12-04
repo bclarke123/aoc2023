@@ -134,7 +134,7 @@ fn do_part2(input: &str) -> i32 {
     let gear_parts = parts
         .iter()
         .filter_map(|p| match search_near(&p, &lines, is_gear) {
-            Some(m) => Some((m, p)),
+            Some(m) => Some((m, p.num)),
             None => None,
         })
         .collect::<Vec<_>>();
@@ -146,26 +146,18 @@ fn do_part2(input: &str) -> i32 {
         }
     }
 
-    let pairs = matches
+    matches
         .iter()
         .map(|m| {
-            (
-                m,
-                gear_parts
-                    .iter()
-                    .filter_map(|x| if x.0 == *m { Some(x.1.num) } else { None })
-                    .collect::<Vec<_>>(),
-            )
+            gear_parts
+                .iter()
+                .filter(|x| x.0 == *m)
+                .map(|x| x.1)
+                .collect::<Vec<_>>()
         })
-        .filter(|m| m.1.len() == 2)
-        .collect::<Vec<_>>();
-
-    let totals = pairs
-        .iter()
-        .map(|x| x.1.iter().fold(1, |acc, p| acc * p))
-        .collect::<Vec<_>>();
-
-    totals.iter().sum()
+        .filter(|x| x.len() == 2)
+        .map(|x| x.iter().fold(1, |acc, n| acc * n))
+        .sum()
 }
 
 pub fn part1() {
