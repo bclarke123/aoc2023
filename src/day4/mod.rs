@@ -5,8 +5,12 @@ struct Card {
 }
 
 impl Card {
+    fn matches(&self) -> usize {
+        self.have.iter().filter(|x| self.wins.contains(x)).count() as usize
+    }
+
     fn score(&self) -> i32 {
-        let ret = self.have.iter().filter(|x| self.wins.contains(x)).count() as i32;
+        let ret = self.matches() as i32;
         (2_u32 as f32).powi(ret - 1) as i32
     }
 }
@@ -31,12 +35,32 @@ fn parse_card(line: &str) -> Card {
     Card { wins, have }
 }
 
+fn get_copies(cards: &Vec<Card>, index: usize, score: usize) -> usize {
+    let card = &cards[index];
+    let matches = card.matches();
+    let mut ret = score + 1;
+
+    for i in 0..matches {
+        let idx = index + i + 1;
+        ret += get_copies(cards, idx, score);
+    }
+
+    ret
+}
+
 fn do_part1(input: &str) -> i32 {
-    input
-        .lines()
-        .map(|l| parse_card(l))
-        .map(|c| c.score())
-        .sum()
+    input.lines().map(|l| parse_card(l).score()).sum()
+}
+
+fn do_part2(input: &str) -> usize {
+    let cards = input.lines().map(|l| parse_card(l)).collect::<Vec<_>>();
+
+    let mut ret = 0;
+    for i in 0..cards.len() {
+        ret += get_copies(&cards, i, 0);
+    }
+
+    ret
 }
 
 pub fn part1() {
@@ -45,9 +69,22 @@ pub fn part1() {
     println!("Day 4 part 1: {}", output);
 }
 
+pub fn part2() {
+    let input = include_str!("input.txt");
+    let output = do_part2(input);
+    println!("Day 4 part 2: {}", output);
+}
+
 #[test]
 fn test_part1() {
     let input = include_str!("sample.txt");
     let output = do_part1(input);
     assert_eq!(output, 13);
+}
+
+#[test]
+fn test_part2() {
+    let input = include_str!("sample.txt");
+    let output = do_part2(input);
+    assert_eq!(output, 30);
 }
