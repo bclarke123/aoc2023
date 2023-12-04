@@ -1,3 +1,7 @@
+const WORDS: [&str; 10] = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+];
+
 fn get_sum(input: &str) -> u32 {
     input
         .lines()
@@ -14,10 +18,6 @@ pub fn part1() {
 }
 
 pub fn get_sum2(input: &str) -> u32 {
-    let words = [
-        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    ];
-
     let mut idx = 0;
 
     let chars = input.chars().collect::<Vec<_>>();
@@ -37,10 +37,10 @@ pub fn get_sum2(input: &str) -> u32 {
 
         let sub = &input[idx..];
 
-        for (i, word) in words.iter().enumerate() {
+        for (i, word) in WORDS.iter().enumerate() {
             if sub.starts_with(word) {
                 numbers.push(i as u32);
-                idx += words[i].len() - 2;
+                idx += WORDS[i].len() - 2;
                 break;
             }
         }
