@@ -5,7 +5,7 @@ struct Card {
 }
 
 impl Card {
-    fn new(wins: Vec<i32>, have: Vec<i32>) -> Self {
+    fn new(wins: &[i32], have: &[i32]) -> Self {
         let matches = have.iter().filter(|x| wins.contains(x)).count();
         let score = 2_f32.powi((matches as i32) - 1) as i32;
 
@@ -29,7 +29,7 @@ impl Card {
         let wins = Self::parse_list(&wins[0..wins.len() - 1]);
         let have = Self::parse_list(&have[2..]);
 
-        Self::new(wins, have)
+        Self::new(&wins, &have)
     }
 
     fn from_lines(input: &str) -> Vec<Card> {
@@ -37,7 +37,7 @@ impl Card {
     }
 }
 
-fn get_copies(cards: &Vec<Card>, index: usize, score: usize) -> usize {
+fn get_copies(cards: &[Card], index: usize, score: usize) -> usize {
     let card = &cards[index];
     let matches = card.matches;
     let mut ret = score + 1;
