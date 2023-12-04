@@ -7,7 +7,7 @@ struct Card {
 impl Card {
     fn new(wins: Vec<i32>, have: Vec<i32>) -> Self {
         let matches = have.iter().filter(|x| wins.contains(x)).count();
-        let score = (2_u32 as f32).powi((matches as i32) - 1) as i32;
+        let score = 2_f32.powi((matches as i32) - 1) as i32;
 
         Self { matches, score }
     }
@@ -33,7 +33,7 @@ impl Card {
     }
 
     fn from_lines(input: &str) -> Vec<Card> {
-        input.lines().map(|l| Self::parse(l)).collect::<Vec<_>>()
+        input.lines().map(Self::parse).collect::<Vec<_>>()
     }
 }
 

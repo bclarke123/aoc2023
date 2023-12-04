@@ -62,7 +62,7 @@ fn do_part1(input: &str) -> i32 {
         if game.red > 12 || game.green > 13 || game.blue > 14 {
             return 0;
         }
-        return game.game_id;
+        game.game_id
     })
 }
 

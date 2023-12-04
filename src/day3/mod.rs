@@ -12,10 +12,9 @@ struct Match {
     col: usize,
 }
 
-fn parse_parts(lines: &Vec<&str>) -> Vec<Part> {
+fn parse_parts(lines: &[&str]) -> Vec<Part> {
     let mut parts = vec![];
-    for i in 0..lines.len() {
-        let line = lines[i];
+    for (i, line) in lines.iter().enumerate() {
         let mut index = 0;
 
         loop {
@@ -24,7 +23,7 @@ fn parse_parts(lines: &Vec<&str>) -> Vec<Part> {
             }
 
             let remaining = &line[index..];
-            let next = remaining.find(|c: char| c.is_digit(10));
+            let next = remaining.find(|c: char| c.is_ascii_digit());
 
             if next.is_none() {
                 break;
@@ -33,7 +32,7 @@ fn parse_parts(lines: &Vec<&str>) -> Vec<Part> {
             let next = next.unwrap();
             let next_end = next
                 + remaining[next..]
-                    .find(|c: char| !c.is_digit(10))
+                    .find(|c: char| !c.is_ascii_digit())
                     .unwrap_or(remaining.len() - next);
             let num = &remaining[next..next_end];
             let row = i;
@@ -58,27 +57,23 @@ fn search_near(p: &Part, lines: &Vec<&str>, check: fn(char) -> bool) -> Option<M
 
     if p.row > 0 {
         let chars = &lines[p.row - 1][start_col..end_col];
-        match chars.find(|c: char| check(c)) {
-            Some(i) => {
-                return Some(Match {
-                    row: p.row - 1,
-                    col: start_col + i,
-                })
-            }
-            None => {}
+
+        if let Some(i) = chars.find(check) {
+            return Some(Match {
+                row: p.row - 1,
+                col: start_col + i,
+            });
         }
     }
 
     if p.row < lines.len() - 1 {
         let chars = &lines[p.row + 1][start_col..end_col];
-        match chars.find(|c: char| check(c)) {
-            Some(i) => {
-                return Some(Match {
-                    row: p.row + 1,
-                    col: start_col + i,
-                })
-            }
-            None => {}
+
+        if let Some(i) = chars.find(check) {
+            return Some(Match {
+                row: p.row + 1,
+                col: start_col + i,
+            });
         }
     }
 
@@ -112,7 +107,7 @@ fn do_part1(input: &str) -> i32 {
     let parts = parse_parts(&lines);
 
     fn is_symbol(c: char) -> bool {
-        !(c.is_digit(10) || c == '.')
+        !(c.is_ascii_digit() || c == '.')
     }
 
     let sum = parts
@@ -133,10 +128,7 @@ fn do_part2(input: &str) -> i32 {
 
     let gear_parts = parts
         .iter()
-        .filter_map(|p| match search_near(&p, &lines, is_gear) {
-            Some(m) => Some((m, p.num)),
-            None => None,
-        })
+        .filter_map(|p| search_near(p, &lines, is_gear).map(|m| (m, p.num)))
         .collect::<Vec<_>>();
 
     let mut matches = vec![];
@@ -156,7 +148,7 @@ fn do_part2(input: &str) -> i32 {
                 .collect::<Vec<_>>()
         })
         .filter(|x| x.len() == 2)
-        .map(|x| x.iter().fold(1, |acc, n| acc * n))
+        .map(|x| x.iter().product::<i32>())
         .sum()
 }
 

@@ -29,7 +29,7 @@ pub fn get_sum2(input: &str) -> u32 {
         }
 
         let next = chars[idx];
-        if next.is_digit(10) {
+        if next.is_ascii_digit() {
             numbers.push(next.to_digit(10).unwrap());
             idx += 1;
             continue;
@@ -37,8 +37,8 @@ pub fn get_sum2(input: &str) -> u32 {
 
         let sub = &input[idx..];
 
-        for i in 0..words.len() {
-            if sub.starts_with(&words[i]) {
+        for (i, word) in words.iter().enumerate() {
+            if sub.starts_with(word) {
                 numbers.push(i as u32);
                 idx += words[i].len() - 2;
                 break;
@@ -51,7 +51,7 @@ pub fn get_sum2(input: &str) -> u32 {
     let first = numbers[0];
     let last = numbers[numbers.len() - 1];
 
-    return first * 10 + last;
+    first * 10 + last
 }
 
 pub fn part2() {
@@ -59,7 +59,7 @@ pub fn part2() {
     let mut total = 0;
 
     for line in str.lines() {
-        total += get_sum2(&line);
+        total += get_sum2(line);
     }
 
     println!("Day 1 part 2: {}", total);
