@@ -11,26 +11,30 @@ impl Card {
 
         Self { matches, score }
     }
-}
 
-fn parse_list(input: &str) -> Vec<i32> {
-    input
-        .trim()
-        .split(' ')
-        .filter_map(|x| x.parse::<i32>().ok())
-        .collect::<Vec<_>>()
-}
+    fn parse_list(input: &str) -> Vec<i32> {
+        input
+            .trim()
+            .split(' ')
+            .filter_map(|x| x.parse::<i32>().ok())
+            .collect::<Vec<_>>()
+    }
 
-fn parse_card(line: &str) -> Card {
-    let colon = line.find(": ").unwrap() + 2;
-    let numbers = &line[colon..];
-    let pipe = numbers.find('|').unwrap();
-    let (wins, have) = numbers.split_at(pipe);
+    fn parse(line: &str) -> Self {
+        let colon = line.find(": ").unwrap() + 2;
+        let numbers = &line[colon..];
+        let pipe = numbers.find('|').unwrap();
+        let (wins, have) = numbers.split_at(pipe);
 
-    let wins = parse_list(&wins[0..wins.len() - 1]);
-    let have = parse_list(&have[2..]);
+        let wins = Self::parse_list(&wins[0..wins.len() - 1]);
+        let have = Self::parse_list(&have[2..]);
 
-    Card::new(wins, have)
+        Self::new(wins, have)
+    }
+
+    fn from_lines(input: &str) -> Vec<Card> {
+        input.lines().map(|l| Self::parse(l)).collect::<Vec<_>>()
+    }
 }
 
 fn get_copies(cards: &Vec<Card>, index: usize, score: usize) -> usize {
@@ -47,11 +51,11 @@ fn get_copies(cards: &Vec<Card>, index: usize, score: usize) -> usize {
 }
 
 fn do_part1(input: &str) -> i32 {
-    input.lines().map(|l| parse_card(l).score).sum()
+    Card::from_lines(input).iter().map(|c| c.score).sum()
 }
 
 fn do_part2(input: &str) -> usize {
-    let cards = input.lines().map(|l| parse_card(l)).collect::<Vec<_>>();
+    let cards = Card::from_lines(input);
 
     let mut ret = 0;
     for i in 0..cards.len() {
