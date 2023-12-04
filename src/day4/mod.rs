@@ -1,17 +1,15 @@
 #[derive(Debug, Clone)]
 struct Card {
-    wins: Vec<i32>,
-    have: Vec<i32>,
+    matches: usize,
+    score: i32,
 }
 
 impl Card {
-    fn matches(&self) -> usize {
-        self.have.iter().filter(|x| self.wins.contains(x)).count() as usize
-    }
+    fn new(wins: Vec<i32>, have: Vec<i32>) -> Self {
+        let matches = have.iter().filter(|x| wins.contains(x)).count();
+        let score = (2_u32 as f32).powi((matches as i32) - 1) as i32;
 
-    fn score(&self) -> i32 {
-        let ret = self.matches() as i32;
-        (2_u32 as f32).powi(ret - 1) as i32
+        Self { matches, score }
     }
 }
 
@@ -32,12 +30,12 @@ fn parse_card(line: &str) -> Card {
     let wins = parse_list(&wins[0..wins.len() - 1]);
     let have = parse_list(&have[2..]);
 
-    Card { wins, have }
+    Card::new(wins, have)
 }
 
 fn get_copies(cards: &Vec<Card>, index: usize, score: usize) -> usize {
     let card = &cards[index];
-    let matches = card.matches();
+    let matches = card.matches;
     let mut ret = score + 1;
 
     for i in 0..matches {
@@ -49,7 +47,7 @@ fn get_copies(cards: &Vec<Card>, index: usize, score: usize) -> usize {
 }
 
 fn do_part1(input: &str) -> i32 {
-    input.lines().map(|l| parse_card(l).score()).sum()
+    input.lines().map(|l| parse_card(l).score).sum()
 }
 
 fn do_part2(input: &str) -> usize {
