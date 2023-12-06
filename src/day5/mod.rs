@@ -76,7 +76,7 @@ fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
         let m_hi = m_lo + map_range[2];
 
         // if our range is completely outside this range
-        if lo > m_hi || hi < m_lo {
+        if lo >= m_hi || hi < m_lo {
             continue;
         }
 
