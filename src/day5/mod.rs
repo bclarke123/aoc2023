@@ -54,11 +54,11 @@ fn parse_body(lines: &[&str]) -> Vec<Mapping> {
 
     let mut remaining = lines; // Remove header and blank line
     loop {
-        if remaining.len() == 0 {
+        if remaining.is_empty() {
             break;
         }
 
-        let end = match remaining.iter().position(|s| *s == "") {
+        let end = match remaining.iter().position(|s| s.is_empty()) {
             Some(x) => x,
             None => remaining.len(),
         };
@@ -135,23 +135,23 @@ fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
 
         // if our range starts below this range but ends within it
         if lo < m_lo && hi > m_lo && hi < m_hi {
-            let mut ret = split_range(vec![lo, m_lo], &mapping);
-            ret.append(&mut split_range(vec![m_lo, hi], &mapping));
+            let mut ret = split_range(vec![lo, m_lo], mapping);
+            ret.append(&mut split_range(vec![m_lo, hi], mapping));
 
             return ret;
         }
 
         // if our range starts within this range and ends outside of it
         if lo >= m_lo && lo < m_hi && hi >= m_hi {
-            let mut ret = split_range(vec![lo, m_hi - 1], &mapping);
-            ret.append(&mut split_range(vec![m_hi, hi], &mapping));
+            let mut ret = split_range(vec![lo, m_hi - 1], mapping);
+            ret.append(&mut split_range(vec![m_hi, hi], mapping));
 
             return ret;
         }
     }
 
     // println!("No mapping for range {:?}", range);
-    return vec![vec![lo, hi]];
+    vec![range]
 }
 
 fn do_part2(input: &str) -> u64 {
