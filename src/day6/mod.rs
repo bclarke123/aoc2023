@@ -23,6 +23,7 @@ fn get_races(times: Vec<u64>, records: Vec<u64>) -> Vec<(u64, u64)> {
         .collect::<Vec<_>>()
 }
 
+// Faster, less rusty
 fn ways_to_win(race: (u64, u64)) -> u64 {
     let mut ret = 0;
     for i in 0..race.0 {
@@ -35,6 +36,11 @@ fn ways_to_win(race: (u64, u64)) -> u64 {
     }
     ret
 }
+
+// Slower, idiomatic-er
+// fn ways_to_win(race: (u64, u64)) -> u64 {
+//     (0..race.0).filter(|i| (race.0 - i) * i > race.1).count() as u64
+// }
 
 fn do_part1(input: &str) -> u64 {
     let lines = input.lines().collect::<Vec<_>>();
