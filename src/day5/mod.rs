@@ -29,16 +29,6 @@ impl Mapping {
             ranges: Self::parse_ranges(&input[1..]),
         }
     }
-    fn get_value(&self, input: u64) -> u64 {
-        let mapping = self
-            .ranges
-            .iter()
-            .find(|r| input >= r[1] && input < r[1] + r[2]);
-        match mapping {
-            Some(r) => r[0] + (input - r[1]),
-            None => input,
-        }
-    }
 }
 
 fn parse_header(input: &str) -> Vec<u64> {
@@ -74,44 +64,6 @@ fn parse_body(lines: &[&str]) -> Vec<Mapping> {
         .iter()
         .map(|m| Mapping::parse(m))
         .collect::<Vec<_>>()
-}
-
-fn get_min_location(seed: u64, mappings: &[Mapping]) -> u64 {
-    let mut to = "seed";
-    let mut val = seed;
-    loop {
-        let mapping = mappings.iter().find(|m| m.from == to).unwrap();
-        let new_val = mapping.get_value(val);
-        val = new_val;
-        to = &mapping.to;
-
-        if to == "location" {
-            break;
-        }
-    }
-    val
-}
-
-fn do_part1(input: &str) -> u64 {
-    let lines = input.lines().collect::<Vec<_>>();
-    let header = parse_header(lines.first().unwrap());
-    let mappings = parse_body(&lines[2..]);
-
-    header
-        .iter()
-        .map(|seed| get_min_location(*seed, &mappings))
-        .min()
-        .unwrap()
-}
-
-pub fn part1() {
-    let input = include_str!("input.txt");
-    let output = do_part1(input);
-    println!("Day 5 Part 1: {}", output);
-}
-
-fn between(a: u64, b: &[u64]) -> bool {
-    a > b[0] && a < b[1]
 }
 
 fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
@@ -154,28 +106,9 @@ fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
     vec![range]
 }
 
-fn do_part2(input: &str) -> u64 {
-    let lines = input.lines().collect::<Vec<_>>();
-    let header = parse_header(lines.first().unwrap());
-    let mappings = parse_body(&lines[2..]);
-
-    let ranges = header.chunks(2).collect::<Vec<_>>();
-    let mut parsed: Vec<Vec<u64>> = vec![];
-
-    for i in ranges {
-        for j in &mut parsed {
-            if between(i[0], j) || between(i[0] + i[1], j) {
-                j[0] = j[0].min(i[0]);
-                j[1] = j[1].max(i[0] + i[1]);
-                break;
-            }
-        }
-
-        parsed.push(vec![i[0], i[0] + i[1]]);
-    }
-
+fn filter_range(input: Vec<Vec<u64>>, mappings: Vec<Mapping>) -> Vec<Vec<u64>> {
     let mut map_name = "seed";
-    let mut updated = parsed;
+    let mut updated = input;
 
     loop {
         if map_name == "location" {
@@ -191,7 +124,38 @@ fn do_part2(input: &str) -> u64 {
         map_name = &mapping.to;
     }
 
-    *updated.iter().flatten().min().unwrap()
+    updated
+}
+
+fn do_part(input: &str, cb: fn(Vec<u64>) -> Vec<Vec<u64>>) -> u64 {
+    let lines = input.lines().collect::<Vec<_>>();
+    let header = parse_header(lines.first().unwrap());
+    let mappings = parse_body(&lines[2..]);
+
+    let ranges = cb(header);
+    let filtered = filter_range(ranges, mappings);
+    *filtered.iter().flatten().min().unwrap()
+}
+
+fn do_part1(input: &str) -> u64 {
+    do_part(input, |header| {
+        header.iter().map(|x| vec![*x, *x]).collect::<Vec<_>>()
+    })
+}
+
+pub fn part1() {
+    let input = include_str!("input.txt");
+    let output = do_part1(input);
+    println!("Day 5 Part 1: {}", output);
+}
+
+fn do_part2(input: &str) -> u64 {
+    do_part(input, |header| {
+        header
+            .chunks(2)
+            .map(|c| vec![c[0], c[0] + c[1]])
+            .collect::<Vec<_>>()
+    })
 }
 
 pub fn part2() {
