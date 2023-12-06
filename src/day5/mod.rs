@@ -2,11 +2,11 @@
 struct Mapping {
     from: String,
     to: String,
-    ranges: Vec<Vec<u64>>,
+    ranges: Vec<(u64, u64, u64)>,
 }
 
 impl Mapping {
-    fn parse_ranges(input: &[&str]) -> Vec<Vec<u64>> {
+    fn parse_ranges(input: &[&str]) -> Vec<(u64, u64, u64)> {
         input
             .iter()
             .map(|l| {
@@ -14,6 +14,7 @@ impl Mapping {
                     .map(|i| i.parse::<u64>().unwrap())
                     .collect::<Vec<_>>()
             })
+            .map(|v| (v[0], v[1], v[1] + v[2]))
             .collect::<Vec<_>>()
     }
 
@@ -66,14 +67,11 @@ fn parse_body(lines: &[&str]) -> Vec<Mapping> {
         .collect::<Vec<_>>()
 }
 
-fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
-    let lo = range[0];
-    let hi = range[1];
+fn split_range(range: (u64, u64), mapping: &Mapping) -> Vec<(u64, u64)> {
+    let (lo, hi) = range;
 
     for map_range in &mapping.ranges {
-        let m_dst = map_range[0];
-        let m_lo = map_range[1];
-        let m_hi = m_lo + map_range[2];
+        let (m_dst, m_lo, m_hi) = *map_range;
 
         // if our range is completely outside this range
         if lo >= m_hi || hi < m_lo {
@@ -82,21 +80,21 @@ fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
 
         // if our range is completely within this range
         if lo >= m_lo && hi < m_hi {
-            return vec![vec![lo - m_lo + m_dst, hi - m_lo + m_dst]];
+            return vec![(lo - m_lo + m_dst, hi - m_lo + m_dst)];
         }
 
         // if our range starts below this range but ends within it
         if lo < m_lo && hi > m_lo && hi < m_hi {
-            let mut ret = split_range(vec![lo, m_lo], mapping);
-            ret.append(&mut split_range(vec![m_lo, hi], mapping));
+            let mut ret = split_range((lo, m_lo), mapping);
+            ret.append(&mut split_range((m_lo, hi), mapping));
 
             return ret;
         }
 
         // if our range starts within this range and ends outside of it
         if lo >= m_lo && lo < m_hi && hi >= m_hi {
-            let mut ret = split_range(vec![lo, m_hi - 1], mapping);
-            ret.append(&mut split_range(vec![m_hi, hi], mapping));
+            let mut ret = split_range((lo, m_hi - 1), mapping);
+            ret.append(&mut split_range((m_hi, hi), mapping));
 
             return ret;
         }
@@ -105,7 +103,7 @@ fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
     vec![range]
 }
 
-fn filter_range(input: Vec<Vec<u64>>, mappings: Vec<Mapping>) -> Vec<Vec<u64>> {
+fn filter_range(input: Vec<(u64, u64)>, mappings: Vec<Mapping>) -> Vec<(u64, u64)> {
     let mut map_name = "seed";
     let mut updated = input;
 
@@ -117,7 +115,7 @@ fn filter_range(input: Vec<Vec<u64>>, mappings: Vec<Mapping>) -> Vec<Vec<u64>> {
         let mapping = mappings.iter().find(|m| m.from == map_name).unwrap();
         updated = updated
             .iter()
-            .flat_map(|x| split_range(x.to_vec(), mapping))
+            .flat_map(|x| split_range(*x, mapping))
             .collect::<Vec<_>>();
 
         map_name = &mapping.to;
@@ -126,19 +124,19 @@ fn filter_range(input: Vec<Vec<u64>>, mappings: Vec<Mapping>) -> Vec<Vec<u64>> {
     updated
 }
 
-fn do_part(input: &str, cb: fn(Vec<u64>) -> Vec<Vec<u64>>) -> u64 {
+fn do_part(input: &str, cb: fn(Vec<u64>) -> Vec<(u64, u64)>) -> u64 {
     let lines = input.lines().collect::<Vec<_>>();
     let header = parse_header(lines.first().unwrap());
     let mappings = parse_body(&lines[2..]);
 
     let ranges = cb(header);
     let filtered = filter_range(ranges, mappings);
-    *filtered.iter().flatten().min().unwrap()
+    filtered.iter().map(|r| r.0).min().unwrap()
 }
 
 fn do_part1(input: &str) -> u64 {
     do_part(input, |header| {
-        header.iter().map(|x| vec![*x, *x]).collect::<Vec<_>>()
+        header.iter().map(|x| (*x, *x)).collect::<Vec<_>>()
     })
 }
 
@@ -152,7 +150,7 @@ fn do_part2(input: &str) -> u64 {
     do_part(input, |header| {
         header
             .chunks(2)
-            .map(|c| vec![c[0], c[0] + c[1]])
+            .map(|c| (c[0], c[0] + c[1]))
             .collect::<Vec<_>>()
     })
 }
