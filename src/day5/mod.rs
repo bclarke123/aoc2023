@@ -42,7 +42,7 @@ fn parse_header(input: &str) -> Vec<u64> {
 fn parse_body(lines: &[&str]) -> Vec<Mapping> {
     let mut str_mappings = vec![];
 
-    let mut remaining = lines; // Remove header and blank line
+    let mut remaining = lines;
     loop {
         if remaining.is_empty() {
             break;
@@ -102,7 +102,6 @@ fn split_range(range: Vec<u64>, mapping: &Mapping) -> Vec<Vec<u64>> {
         }
     }
 
-    // println!("No mapping for range {:?}", range);
     vec![range]
 }
 
